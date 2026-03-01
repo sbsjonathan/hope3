@@ -72,7 +72,11 @@ export default {
       const afterP8 = PROCESSADOR_8(afterP6);
       const afterP7 = PROCESSADOR_7(afterP8);
       
-      const withPerguntas = processPerguntas(afterP7);
+      let withPerguntas = processPerguntas(afterP7);
+
+      withPerguntas = withPerguntas.replace(/<\/strong>(\s*<bbl>[\s\S]*?<\/bbl>\s*)<strong>/gi, "$1");
+      withPerguntas = withPerguntas.replace(/<\/em>(\s*<bbl>[\s\S]*?<\/bbl>\s*)<em>/gi, "$1");
+
       const finalHtml = normalizeBlankLines(withPerguntas);
 
       return new Response(finalHtml, { status: 200, headers: { ...corsHeaders, "Content-Type": "text/html;charset=UTF-8" } });
@@ -216,7 +220,6 @@ function PROCESSADOR_2(html, hexColor) {
   }
   return `${docId}\n\n${hexColor}\n\n` + out.slice(openEnd);
 }
-// <<<PROCESSADOR_2_FIM<<<
 
 // >>>PROCESSADOR_3_INICIO<<<
 function PROCESSADOR_3(html) {
@@ -226,7 +229,6 @@ function PROCESSADOR_3(html) {
   out = out.replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/i, (m) => `<tema>${stripTags(m).replace(/\s+/g, " ").trim()}</tema>\n\n`);
   return out;
 }
-// <<<PROCESSADOR_3_FIM<<<
 
 // >>>PROCESSADOR_4_INICIO<<<
 function PROCESSADOR_4(html) {
@@ -245,7 +247,6 @@ function PROCESSADOR_4(html) {
 
   return out;
 }
-// <<<PROCESSADOR_4_FIM<<<
 
 // >>>PROCESSADOR_5_INICIO<<<
 function PROCESSADOR_5(html) {
@@ -274,7 +275,6 @@ function PROCESSADOR_5(html) {
 
   return out;
 }
-// <<<PROCESSADOR_5_FIM<<<
 
 // >>>PROCESSADOR_6_INICIO<<<
 function PROCESSADOR_6(html) {
@@ -315,7 +315,6 @@ function PROCESSADOR_6(html) {
 
   return out;
 }
-// <<<PROCESSADOR_6_FIM<<<
 
 // >>>PROCESSADOR_8_INICIO<<<
 function PROCESSADOR_8(html) {
@@ -324,7 +323,9 @@ function PROCESSADOR_8(html) {
   out = out.replace(
     /<div\b[^>]*\bclass=(["'])[^"']*\bboxSupplement\b[^"']*\1[^>]*>[\s\S]*?<aside\b[^>]*>([\s\S]*?)<\/aside>[\s\S]*?<\/div>/gi,
     (m, quote, asideInner) => {
+      
       const partes =[];
+
       const h2Match = asideInner.match(/<h2\b[^>]*>([\s\S]*?)<\/h2>/i);
       let titulo = "";
       if (h2Match) {
@@ -335,6 +336,7 @@ function PROCESSADOR_8(html) {
 
       const blockRegex = /<(p|li)\b[^>]*>([\s\S]*?)<\/\1>/gi;
       let bm;
+      
       while ((bm = blockRegex.exec(asideInner)) !== null) {
         const tag = bm[1].toLowerCase();
         let inner = bm[2];
@@ -354,13 +356,13 @@ function PROCESSADOR_8(html) {
            else partes.push(text);
         }
       }
+
       return `\n\n<quadro>\n${partes.join("\n\n")}\n</quadro>\n\n`;
     }
   );
 
   return out;
 }
-// <<<PROCESSADOR_8_FIM<<<
 
 // >>>PROCESSADOR_7_INICIO<<<
 function PROCESSADOR_7(html) {
@@ -395,6 +397,7 @@ function PROCESSADOR_7(html) {
       });
       
       t = t.replace(/<[^>]+>/g, "");
+      
       t = t.replace(/__BBL_OPEN__/g, "<bbl>").replace(/__BBL_CLOSE__/g, "</bbl>");
       t = t.replace(/__STRONG_OPEN__/g, "<strong>").replace(/__STRONG_CLOSE__/g, "</strong>");
       t = t.replace(/__EM_OPEN__/g, "<em>").replace(/__EM_CLOSE__/g, "</em>");
@@ -417,6 +420,7 @@ function PROCESSADOR_7(html) {
           } else {
               cleanInner = " * " + cleanInner;
           }
+          
           let noteText = preserveFormatAndLinks(cleanInner);
           noteText = noteText.replace(/^\s*\*\s*/, "* ");
           
@@ -429,6 +433,7 @@ function PROCESSADOR_7(html) {
   out = out.replace(/<\/?article\b[^>]*>/gi, "");
   out = out.replace(/<\/div>\s*(<recap>)/gi, "$1"); 
   out = out.replace(/(<\/recap>)\s*<\/div>/gi, "$1");
+  
   out = out.replace(/(?:<div\b[^>]*>|<\/div>|\s)+$/gi, "");
 
   if (notes.length > 0) {
@@ -437,4 +442,3 @@ function PROCESSADOR_7(html) {
 
   return out;
 }
-// <<<PROCESSADOR_7_FIM<<<
