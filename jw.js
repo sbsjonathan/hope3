@@ -74,12 +74,13 @@ export default {
       
       let withPerguntas = processPerguntas(afterP7);
 
-      let prev = "";
-      while (prev !== withPerguntas) {
-          prev = withPerguntas;
-          withPerguntas = withPerguntas.replace(/<\/strong>((?:[^<]*<bbl>[^<]*<\/bbl>)+[^<]*)<strong>/gi, "$1");
-          withPerguntas = withPerguntas.replace(/<\/em>((?:[^<]*<bbl>[^<]*<\/bbl>)+[^<]*)<em>/gi, "$1");
-      }
+      withPerguntas = withPerguntas.replace(
+        /((?:<strong[^>]*>\s*)?\(?\s*(?:<strong[^>]*>\s*)?Leia\b[\s\S]*?<bbl>[\s\S]*?<\/bbl>(?:\s*(?:[,;]|\be\b)?\s*(?:<\/?strong[^>]*>\s*)*<bbl>[\s\S]*?<\/bbl>)*(?:[^a-zA-Z<\s]*(?:<\/?strong[^>]*>[^a-zA-Z<\s]*)*))/gi,
+        (match) => {
+          let clean = match.replace(/<\/?strong[^>]*>/gi, "");
+          return `<strong>${clean}</strong>`;
+        }
+      );
 
       const finalHtml = normalizeBlankLines(withPerguntas);
 
@@ -124,7 +125,7 @@ async function fetchHexFromCss(html, baseUrl, tokenClass, robustHeaders) {
   try {
     const baseMatch = html.match(/<base\b[^>]*href\s*=\s*["']([^"']+)["']/i);
     const baseHref = baseMatch ? baseMatch[1] : baseUrl;
-    const hrefs =[];
+    const hrefs = [];
     const linkRe = /<link\b[^>]*>/gi;
 
     let lm;
@@ -224,7 +225,6 @@ function PROCESSADOR_2(html, hexColor) {
   }
   return `${docId}\n\n${hexColor}\n\n` + out.slice(openEnd);
 }
-// <<<PROCESSADOR_2_FIM<<<
 
 // >>>PROCESSADOR_3_INICIO<<<
 function PROCESSADOR_3(html) {
@@ -234,7 +234,6 @@ function PROCESSADOR_3(html) {
   out = out.replace(/<h1\b[^>]*>[\s\S]*?<\/h1>/i, (m) => `<tema>${stripTags(m).replace(/\s+/g, " ").trim()}</tema>\n\n`);
   return out;
 }
-// <<<PROCESSADOR_3_FIM<<<
 
 // >>>PROCESSADOR_4_INICIO<<<
 function PROCESSADOR_4(html) {
@@ -253,7 +252,6 @@ function PROCESSADOR_4(html) {
 
   return out;
 }
-// <<<PROCESSADOR_4_FIM<<<
 
 // >>>PROCESSADOR_5_INICIO<<<
 function PROCESSADOR_5(html) {
@@ -282,7 +280,6 @@ function PROCESSADOR_5(html) {
 
   return out;
 }
-// <<<PROCESSADOR_5_FIM<<<
 
 // >>>PROCESSADOR_6_INICIO<<<
 function PROCESSADOR_6(html) {
@@ -290,7 +287,7 @@ function PROCESSADOR_6(html) {
   out = out.replace(/<div\b[^>]*\bclass=(["'])[^"']*\bblockTeach\b[^"']*\1[^>]*>\s*<aside\b[^>]*>[\s\S]*?<\/aside>/gi, (m) => {
       const h2m = m.match(/<h2\b[^>]*>[\s\S]*?<\/h2>/i);
       const titulo = h2m ? stripTags(h2m[0]).replace(/\s+/g, " ").trim() : "";
-      const itens = [];
+      const itens =[];
       m.replace(/<li\b[^>]*>[\s\S]*?<p\b[^>]*>([\s\S]*?)<\/p>[\s\S]*?<\/li>/gi, (_mm, pInner) => {
         const t = stripTags(pInner).replace(/\s+/g, " ").trim();
         if (t) itens.push(t);
@@ -323,7 +320,6 @@ function PROCESSADOR_6(html) {
 
   return out;
 }
-// <<<PROCESSADOR_6_FIM<<<
 
 // >>>PROCESSADOR_8_INICIO<<<
 function PROCESSADOR_8(html) {
@@ -368,7 +364,6 @@ function PROCESSADOR_8(html) {
 
   return out;
 }
-// <<<PROCESSADOR_8_FIM<<<
 
 // >>>PROCESSADOR_7_INICIO<<<
 function PROCESSADOR_7(html) {
@@ -446,4 +441,3 @@ function PROCESSADOR_7(html) {
 
   return out;
 }
-// <<<PROCESSADOR_7_FIM<<<
