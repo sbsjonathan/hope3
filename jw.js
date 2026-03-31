@@ -75,12 +75,9 @@ export default {
       let withPerguntas = processPerguntas(afterP7);
 
       withPerguntas = withPerguntas.replace(
-        /((?:<strong[^>]*>\s*)?\(?\s*(?:<strong[^>]*>\s*)?Leia\b[\s\S]*?<bbl>[\s\S]*?<\/bbl>(?:\s*(?:[,;]|\be\b)?\s*(?:<\/?strong[^>]*>\s*)*<bbl>[\s\S]*?<\/bbl>)*(?:[^a-zA-Z<\s]*(?:<\/?strong[^>]*>[^a-zA-Z<\s]*)*))/gi,
-        (match) => {
-          let clean = match.replace(/<\/?strong[^>]*>/gi, "");
-          return `<strong>${clean}</strong>`;
-        }
-      );
+  /(<strong[^>]*>\s*)?(\(?\s*Leia\s+(?:<bbl>[\s\S]*?<\/bbl>)(?:\s*(?:,|;|e)\s*<bbl>[\s\S]*?<\/bbl>)*\s*[\).,:;!?]?)(\s*<\/strong>)?/gi,
+  (_match, _openStrong, trecho) => `<strong>${trecho}</strong>`
+);
 
       const finalHtml = normalizeBlankLines(withPerguntas);
 
